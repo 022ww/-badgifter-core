@@ -6,7 +6,7 @@ if(typeof navigator === 'undefined'){
 } else {
 	const {DeviceUUID} = require('device-uuid');
 
-	const du = new DeviceUUID().parse();
+	const du = DeviceUUID().parse();
 	const dua = [
 		du.language,
 		du.platform,
