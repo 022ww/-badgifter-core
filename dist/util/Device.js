@@ -11,4 +11,4 @@ var device = 'nodejs_env';
 //     device = du.hashMD5(dua.join(":"));
 // }
 // var _default = device;
-exports["default"] = _default;
+exports["default"] = device;
