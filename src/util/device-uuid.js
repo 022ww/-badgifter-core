@@ -6,8 +6,8 @@
 /*global
     screen, window, navigator
  */
-(function (exports) {
-    'use strict';
+// (function (exports) {
+//     'use strict';
 
     var BOTS = [
         '\\+https:\\/\\/developers.google.com\\/\\+\\/web\\/snippet\\/',
@@ -31,7 +31,7 @@
     ];
     var IS_BOT_REGEXP = new RegExp('^.*(' + BOTS.join('|') + ').*$');
 
-    var DeviceUUID = function (options) {
+    export const DeviceUUID = function (options) {
         options = options ? options : {};
         var defOptions = {
             version: false,
@@ -1032,7 +1032,7 @@
         return this;
     };
 
-    exports.DeviceUUID = DeviceUUID;
-    return new DeviceUUID(navigator?.userAgent);
+    // export DeviceUUID;
+//     return new DeviceUUID(navigator?.userAgent);
 
-})(this);
+// })(this);

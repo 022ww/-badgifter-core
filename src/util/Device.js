@@ -4,7 +4,7 @@ let device;
 	if(typeof navigator === 'undefined'){
 		device = 'nodejs_env'
 	} else {
-		const {DeviceUUID} = await import('./device-uuid.js');
+		const { DeviceUUID }= await import('./device-uuid.js');
 
 		const du = new DeviceUUID().parse();
 		const dua = [
