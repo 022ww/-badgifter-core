@@ -1,1 +1,49 @@
-"use strict";var _interopRequireWildcard=require("@babel/runtime/helpers/interopRequireWildcard"),_interopRequireDefault=require("@babel/runtime/helpers/interopRequireDefault");Object.defineProperty(exports,"__esModule",{value:!0}),exports["default"]=void 0;var _regenerator=_interopRequireDefault(require("@babel/runtime/regenerator")),_asyncToGenerator2=_interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator")),_classCallCheck2=_interopRequireDefault(require("@babel/runtime/helpers/classCallCheck")),_createClass2=_interopRequireDefault(require("@babel/runtime/helpers/createClass")),_possibleConstructorReturn2=_interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn")),_getPrototypeOf2=_interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf")),_inherits2=_interopRequireDefault(require("@babel/runtime/helpers/inherits")),_Plugin2=_interopRequireDefault(require("../plugins/Plugin")),PluginTypes=_interopRequireWildcard(require("../plugins/PluginTypes")),_SocketService=_interopRequireDefault(require("../services/SocketService")),_index=require("../index"),_WalletAPI=_interopRequireDefault(require("./WalletAPI")),LocalSocket=/*#__PURE__*/function(a){function b(a,c){var d;return(0,_classCallCheck2["default"])(this,b),d=(0,_possibleConstructorReturn2["default"])(this,(0,_getPrototypeOf2["default"])(b).call(this,"LocalSocket",PluginTypes.WALLET_SUPPORT)),d.name="LocalSocket",d.context=a,d.holderFns=c,d}return(0,_inherits2["default"])(b,a),(0,_createClass2["default"])(b,[{key:"connect",value:function connect(a){var b=this,c=1<arguments.length&&void 0!==arguments[1]?arguments[1]:{};return new Promise(function(d){if(!a||!a.length)throw new Error("You must specify a name for this connection");c=Object.assign({linkTimeout:3e3,allowHttp:!0},c),b.socketService=new _SocketService["default"](a,c.linkTimeout),b.socketService.link(c.allowHttp).then(/*#__PURE__*/function(){var a=(0,_asyncToGenerator2["default"])(/*#__PURE__*/_regenerator["default"].mark(function a(c){return _regenerator["default"].wrap(function(a){for(;;)switch(a.prev=a.next){case 0:if(c){a.next=2;break}return a.abrupt("return",d(!1));case 2:return b.holderFns.get().isExtension=!1,b.holderFns.get().wallet||(b.holderFns.get().wallet=b.name),a.abrupt("return",d(b.socketService));case 5:case"end":return a.stop();}},a)}));return function(){return a.apply(this,arguments)}}())})}},{key:"runAfterInterfacing",value:function(){var a=(0,_asyncToGenerator2["default"])(/*#__PURE__*/_regenerator["default"].mark(function a(){var b=this;return _regenerator["default"].wrap(function(a){for(;;)switch(a.prev=a.next){case 0:return this.holderFns.get().addEventHandler(function(a,c){return b.eventHandler(a,c)},"internal"),a.next=3,this.holderFns.get().getIdentityFromPermissions();case 3:return this.holderFns.get().identity=a.sent,a.abrupt("return",!0);case 5:case"end":return a.stop();}},a,this)}));return function runAfterInterfacing(){return a.apply(this,arguments)}}()},{key:"methods",value:function methods(){var a=this;return _WalletAPI["default"].getMethods(this,function(){return a.socketService})}},{key:"eventHandler",value:function(){var a=(0,_asyncToGenerator2["default"])(/*#__PURE__*/_regenerator["default"].mark(function a(b){return _regenerator["default"].wrap(function(a){for(;;)switch(a.prev=a.next){case 0:a.t0=b,a.next=a.t0===_index.EVENTS.Disconnected?3:a.t0===_index.EVENTS.LoggedOut?5:9;break;case 3:return this.holderFns.get().identity=null,a.abrupt("break",9);case 5:return a.next=7,this.holderFns.get().getIdentityFromPermissions();case 7:return this.holderFns.get().identity=a.sent,a.abrupt("break",9);case 9:case"end":return a.stop();}},a,this)}));return function eventHandler(){return a.apply(this,arguments)}}()}]),b}(_Plugin2["default"]);exports["default"]=LocalSocket;
+import Plugin from "../plugins/Plugin";
+import * as PluginTypes from "../plugins/PluginTypes";
+import SocketService from "../services/SocketService";
+import { EVENTS } from "../index";
+import WalletAPI from "./WalletAPI";
+export default class LocalSocket extends Plugin {
+  constructor(context, holderFns) {
+    super('LocalSocket', PluginTypes.WALLET_SUPPORT);
+    this.name = 'LocalSocket';
+    this.context = context;
+    this.holderFns = holderFns;
+  }
+  connect(pluginName, options = {}) {
+    return new Promise(resolve => {
+      if (!pluginName || !pluginName.length) throw new Error("You must specify a name for this connection");
+      options = Object.assign({
+        linkTimeout: 3000,
+        allowHttp: true
+      }, options);
+
+      // Tries to set up LocalSocket Connection
+      this.socketService = new SocketService(pluginName, options.linkTimeout);
+      this.socketService.link(options.allowHttp).then(async authenticated => {
+        if (!authenticated) return resolve(false);
+        this.holderFns.get().isExtension = false;
+        if (!this.holderFns.get().wallet) this.holderFns.get().wallet = this.name;
+        return resolve(this.socketService);
+      });
+    });
+  }
+  async runAfterInterfacing() {
+    this.holderFns.get().addEventHandler((t, x) => this.eventHandler(t, x), 'internal');
+    this.holderFns.get().identity = await this.holderFns.get().getIdentityFromPermissions();
+    return true;
+  }
+  methods() {
+    return WalletAPI.getMethods(this, () => this.socketService);
+  }
+  async eventHandler(event, payload) {
+    switch (event) {
+      case EVENTS.Disconnected:
+        this.holderFns.get().identity = null;
+        break;
+      case EVENTS.LoggedOut:
+        this.holderFns.get().identity = await this.holderFns.get().getIdentityFromPermissions();
+        break;
+    }
+  }
+}

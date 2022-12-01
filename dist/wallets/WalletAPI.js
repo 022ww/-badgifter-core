@@ -1,1 +1,136 @@
-"use strict";var _interopRequireDefault=require("@babel/runtime/helpers/interopRequireDefault");Object.defineProperty(exports,"__esModule",{value:!0}),exports["default"]=void 0;var _defineProperty2=_interopRequireDefault(require("@babel/runtime/helpers/defineProperty")),_classCallCheck2=_interopRequireDefault(require("@babel/runtime/helpers/classCallCheck")),_createClass2=_interopRequireDefault(require("@babel/runtime/helpers/createClass")),_WalletInterface=require("../models/WalletInterface"),WalletAPI=/*#__PURE__*/function(){function a(){(0,_classCallCheck2["default"])(this,a)}return(0,_createClass2["default"])(a,null,[{key:"getMethods",value:function getMethods(a,b){var c,d=function(b,c){return(b||c)&&(a.holderFns.get().identity=b),c||b};return c={},(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.disconnect,function(){return b().disconnect()}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.isConnected,function(){return b().isConnected()}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.isPaired,function(){return b().isPaired()}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.addEventHandler,function(a){var c=1<arguments.length&&void 0!==arguments[1]?arguments[1]:null;return b().addEventHandler(a,c)}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.removeEventHandler,function(){var a=0<arguments.length&&void 0!==arguments[0]?arguments[0]:null;return b().removeEventHandler(a)}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.listen,function(a){return b().addEventHandler(a)}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.getVersion,function(){return b().sendApiRequest({type:"getVersion",payload:{}})}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.getIdentity,function(c){return b().sendApiRequest({type:"getOrRequestIdentity",payload:{fields:c?c:{accounts:[a.holderFns.get().network]}}}).then(d)}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.getAllAccountsFor,function(c){return b().sendApiRequest({type:"getAllAccountsFor",payload:{fields:c?c:{accounts:[a.holderFns.get().network]}}}).then(d)}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.getIdentityFromPermissions,function(){return b().sendApiRequest({type:"identityFromPermissions",payload:{}}).then(d)}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.forgetIdentity,function(){return b().sendApiRequest({type:"forgetIdentity",payload:{}}).then(function(a){return d(null,a)})}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.updateIdentity,function(a){var c=a.name,e=a.kyc;return b().sendApiRequest({type:"updateIdentity",payload:{name:c,kyc:e}}).then(function(a){return a?d(a):null})}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.authenticate,function(a){var c=1<arguments.length&&void 0!==arguments[1]?arguments[1]:null,d=2<arguments.length&&void 0!==arguments[2]?arguments[2]:null;return b().sendApiRequest({type:"authenticate",payload:{nonce:a,data:c,publicKey:d}})}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.getArbitrarySignature,function(a,c){return b().sendApiRequest({type:"requestArbitrarySignature",payload:{publicKey:a,data:c}})}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.getPublicKey,function(a){return b().sendApiRequest({type:"getPublicKey",payload:{blockchain:a}})}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.linkAccount,function(c,d){return b().sendApiRequest({type:"linkAccount",payload:{account:c,network:d||a.holderFns.get().network}})}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.hasAccountFor,function(c){return b().sendApiRequest({type:"hasAccountFor",payload:{network:c||a.holderFns.get().network}})}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.suggestNetwork,function(c){return b().sendApiRequest({type:"requestAddNetwork",payload:{network:c||a.holderFns.get().network}})}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.requestTransfer,function(c,d,e){var f=3<arguments.length&&void 0!==arguments[3]?arguments[3]:{};return b().sendApiRequest({type:"requestTransfer",payload:{network:c||a.holderFns.get().network,to:d,amount:e,options:f}})}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.getAvatar,function(){return b().sendApiRequest({type:"getAvatar",payload:{}})}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.requestSignature,function(a){return b().sendApiRequest({type:"requestSignature",payload:a})}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.createTransaction,function(c,d,e,f){return b().sendApiRequest({type:"createTransaction",payload:{blockchain:c,actions:d,account:e,network:f||a.holderFns.get().network}})}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.addToken,function(c,d){return b().sendApiRequest({type:"addToken",payload:{token:c,network:d||a.holderFns.get().network}})}),(0,_defineProperty2["default"])(c,_WalletInterface.WALLET_METHODS.createEncryptionKey,function(a,c){var d=2<arguments.length&&void 0!==arguments[2]?arguments[2]:null;return b().sendApiRequest({type:"createEncryptionKey",payload:{scatterPublicKey:a,otherPublicKey:c,nonce:d}})}),c}}]),a}();exports["default"]=WalletAPI;
+import { WALLET_METHODS } from "../models/WalletInterface";
+export default class WalletAPI {
+  static getMethods(context, wallet) {
+    const setAndReturnId = (id, forget) => {
+      if (id || forget) context.holderFns.get().identity = id;
+      return forget || id;
+    };
+    return {
+      [WALLET_METHODS.disconnect]: () => wallet().disconnect(),
+      [WALLET_METHODS.isConnected]: () => wallet().isConnected(),
+      [WALLET_METHODS.isPaired]: () => wallet().isPaired(),
+      [WALLET_METHODS.addEventHandler]: (handler, key = null) => wallet().addEventHandler(handler, key),
+      [WALLET_METHODS.removeEventHandler]: (key = null) => wallet().removeEventHandler(key),
+      [WALLET_METHODS.listen]: handler => wallet().addEventHandler(handler),
+      [WALLET_METHODS.getVersion]: () => wallet().sendApiRequest({
+        type: 'getVersion',
+        payload: {}
+      }),
+      [WALLET_METHODS.getIdentity]: requiredFields => wallet().sendApiRequest({
+        type: 'getOrRequestIdentity',
+        payload: {
+          fields: requiredFields ? requiredFields : {
+            accounts: [context.holderFns.get().network]
+          }
+        }
+      }).then(setAndReturnId),
+      [WALLET_METHODS.getAllAccountsFor]: requiredFields => wallet().sendApiRequest({
+        type: 'getAllAccountsFor',
+        payload: {
+          fields: requiredFields ? requiredFields : {
+            accounts: [context.holderFns.get().network]
+          }
+        }
+      }).then(setAndReturnId),
+      [WALLET_METHODS.getIdentityFromPermissions]: () => wallet().sendApiRequest({
+        type: 'identityFromPermissions',
+        payload: {}
+      }).then(setAndReturnId),
+      [WALLET_METHODS.forgetIdentity]: () => wallet().sendApiRequest({
+        type: 'forgetIdentity',
+        payload: {}
+      }).then(res => setAndReturnId(null, res)),
+      [WALLET_METHODS.updateIdentity]: ({
+        name,
+        kyc
+      }) => wallet().sendApiRequest({
+        type: 'updateIdentity',
+        payload: {
+          name,
+          kyc
+        }
+      }).then(id => id ? setAndReturnId(id) : null),
+      [WALLET_METHODS.authenticate]: (nonce, data = null, publicKey = null) => wallet().sendApiRequest({
+        type: 'authenticate',
+        payload: {
+          nonce,
+          data,
+          publicKey
+        }
+      }),
+      [WALLET_METHODS.getArbitrarySignature]: (publicKey, data) => wallet().sendApiRequest({
+        type: 'requestArbitrarySignature',
+        payload: {
+          publicKey,
+          data
+        }
+      }),
+      [WALLET_METHODS.getPublicKey]: blockchain => wallet().sendApiRequest({
+        type: 'getPublicKey',
+        payload: {
+          blockchain
+        }
+      }),
+      [WALLET_METHODS.linkAccount]: (account, network) => wallet().sendApiRequest({
+        type: 'linkAccount',
+        payload: {
+          account,
+          network: network || context.holderFns.get().network
+        }
+      }),
+      [WALLET_METHODS.hasAccountFor]: network => wallet().sendApiRequest({
+        type: 'hasAccountFor',
+        payload: {
+          network: network || context.holderFns.get().network
+        }
+      }),
+      [WALLET_METHODS.suggestNetwork]: network => wallet().sendApiRequest({
+        type: 'requestAddNetwork',
+        payload: {
+          network: network || context.holderFns.get().network
+        }
+      }),
+      [WALLET_METHODS.requestTransfer]: (network, to, amount, options = {}) => wallet().sendApiRequest({
+        type: 'requestTransfer',
+        payload: {
+          network: network || context.holderFns.get().network,
+          to,
+          amount,
+          options
+        }
+      }),
+      [WALLET_METHODS.getAvatar]: () => wallet().sendApiRequest({
+        type: 'getAvatar',
+        payload: {}
+      }),
+      [WALLET_METHODS.requestSignature]: payload => wallet().sendApiRequest({
+        type: 'requestSignature',
+        payload
+      }),
+      [WALLET_METHODS.createTransaction]: (blockchain, actions, account, network) => wallet().sendApiRequest({
+        type: 'createTransaction',
+        payload: {
+          blockchain,
+          actions,
+          account,
+          network: network || context.holderFns.get().network
+        }
+      }),
+      [WALLET_METHODS.addToken]: (token, network) => wallet().sendApiRequest({
+        type: 'addToken',
+        payload: {
+          token,
+          network: network || context.holderFns.get().network
+        }
+      }),
+      [WALLET_METHODS.createEncryptionKey]: (scatterPublicKey, otherPublicKey, nonce = null) => wallet().sendApiRequest({
+        type: 'createEncryptionKey',
+        payload: {
+          scatterPublicKey,
+          otherPublicKey,
+          nonce
+        }
+      })
+    };
+  }
+}

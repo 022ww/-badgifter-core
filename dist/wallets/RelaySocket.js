@@ -1,1 +1,55 @@
-"use strict";var _interopRequireWildcard=require("@babel/runtime/helpers/interopRequireWildcard"),_interopRequireDefault=require("@babel/runtime/helpers/interopRequireDefault");Object.defineProperty(exports,"__esModule",{value:!0}),exports["default"]=void 0;var _regenerator=_interopRequireDefault(require("@babel/runtime/regenerator")),_asyncToGenerator2=_interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator")),_classCallCheck2=_interopRequireDefault(require("@babel/runtime/helpers/classCallCheck")),_createClass2=_interopRequireDefault(require("@babel/runtime/helpers/createClass")),_possibleConstructorReturn2=_interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn")),_getPrototypeOf2=_interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf")),_inherits2=_interopRequireDefault(require("@babel/runtime/helpers/inherits")),_Plugin2=_interopRequireDefault(require("../plugins/Plugin")),_Blockchains=require("../models/Blockchains"),PluginTypes=_interopRequireWildcard(require("../plugins/PluginTypes")),_SocketService=_interopRequireDefault(require("../services/SocketService")),_index=require("../index"),_LocalSocket=_interopRequireDefault(require("./LocalSocket")),_Device=_interopRequireDefault(require("../util/Device")),WEB_HOST="https://relay.get-scatter.com:443",SOCKET_HOST="relaysock.get-scatter.com:443",RelaySocket=/*#__PURE__*/function(a){function b(a,c){var d;return(0,_classCallCheck2["default"])(this,b),d=(0,_possibleConstructorReturn2["default"])(this,(0,_getPrototypeOf2["default"])(b).call(this,"RelaySocket",PluginTypes.WALLET_SUPPORT)),d.name="RelaySocket",d.context=a,d.holderFns=c,d}return(0,_inherits2["default"])(b,a),(0,_createClass2["default"])(b,[{key:"connect",value:function connect(a){var b=this,c=1<arguments.length&&void 0!==arguments[1]?arguments[1]:{};return new Promise(/*#__PURE__*/function(){var d=(0,_asyncToGenerator2["default"])(/*#__PURE__*/_regenerator["default"].mark(function d(e){var f;return _regenerator["default"].wrap(function(d){for(;;)switch(d.prev=d.next){case 0:if(a&&a.length){d.next=2;break}throw new Error("You must specify a name for this connection");case 2:return c=Object.assign({linkTimeout:3e3,allowHttp:!0},c),d.next=5,fetch("".concat(WEB_HOST,"/app/connect/").concat(_Device["default"])).then(function(a){return 200===a.status?a.json():null});case 5:if(f=d.sent,f){d.next=8;break}return d.abrupt("return",e(!1));case 8:b.socketService=new _SocketService["default"](a,c.linkTimeout),b.socketService.link(c.allowHttp,f,SOCKET_HOST).then(/*#__PURE__*/function(){var a=(0,_asyncToGenerator2["default"])(/*#__PURE__*/_regenerator["default"].mark(function a(c){return _regenerator["default"].wrap(function(a){for(;;)switch(a.prev=a.next){case 0:if(c){a.next=2;break}return a.abrupt("return",e(!1));case 2:return b.holderFns.get().isExtension=!1,b.holderFns.get().wallet||(b.holderFns.get().wallet=b.name),a.abrupt("return",e(b.socketService));case 5:case"end":return a.stop();}},a)}));return function(){return a.apply(this,arguments)}}());case 10:case"end":return d.stop();}},d)}));return function(){return d.apply(this,arguments)}}())}},{key:"runAfterInterfacing",value:function(){var a=(0,_asyncToGenerator2["default"])(/*#__PURE__*/_regenerator["default"].mark(function a(){return _regenerator["default"].wrap(function(a){for(;;)switch(a.prev=a.next){case 0:return a.next=2,this.holderFns.get().getIdentityFromPermissions();case 2:return this.holderFns.get().identity=a.sent,a.abrupt("return",!0);case 4:case"end":return a.stop();}},a,this)}));return function runAfterInterfacing(){return a.apply(this,arguments)}}()},{key:"methods",value:function methods(){return _LocalSocket["default"].getMethods(this)}},{key:"eventHandler",value:function(){var a=(0,_asyncToGenerator2["default"])(/*#__PURE__*/_regenerator["default"].mark(function a(b){return _regenerator["default"].wrap(function(a){for(;;)switch(a.prev=a.next){case 0:a.t0=b,a.next=a.t0===_index.EVENTS.Disconnected?3:a.t0===_index.EVENTS.LoggedOut?5:9;break;case 3:return this.holderFns.get().identity=null,a.abrupt("break",9);case 5:return a.next=7,this.holderFns.get().getIdentityFromPermissions();case 7:return this.holderFns.get().identity=a.sent,a.abrupt("break",9);case 9:case"end":return a.stop();}},a,this)}));return function eventHandler(){return a.apply(this,arguments)}}()}]),b}(_Plugin2["default"]);exports["default"]=RelaySocket;
+import Plugin from "../plugins/Plugin";
+import { Blockchains } from "../models/Blockchains";
+import * as PluginTypes from "../plugins/PluginTypes";
+import SocketService from "../services/SocketService";
+import { EVENTS, WALLET_METHODS } from "../index";
+import LocalSocket from "./LocalSocket";
+import device from '../util/Device';
+const WEB_HOST = `https://relay.get-scatter.com:443`;
+const SOCKET_HOST = `relaysock.get-scatter.com:443`;
+export default class RelaySocket extends Plugin {
+  constructor(context, holderFns) {
+    super('RelaySocket', PluginTypes.WALLET_SUPPORT);
+    this.name = 'RelaySocket';
+    this.context = context;
+    this.holderFns = holderFns;
+  }
+  connect(pluginName, options = {}) {
+    return new Promise(async resolve => {
+      if (!pluginName || !pluginName.length) throw new Error("You must specify a name for this connection");
+      options = Object.assign({
+        linkTimeout: 3000,
+        allowHttp: true
+      }, options);
+      const uuid = await fetch(`${WEB_HOST}/app/connect/${device}`).then(x => x.status === 200 ? x.json() : null);
+      if (!uuid) return resolve(false);
+
+      // Tries to set up LocalSocket Connection
+      this.socketService = new SocketService(pluginName, options.linkTimeout);
+      this.socketService.link(options.allowHttp, uuid, SOCKET_HOST).then(async authenticated => {
+        if (!authenticated) return resolve(false);
+        this.holderFns.get().isExtension = false;
+        if (!this.holderFns.get().wallet) this.holderFns.get().wallet = this.name;
+        return resolve(this.socketService);
+      });
+    });
+  }
+  async runAfterInterfacing() {
+    // this.holderFns.get().addEventHandler((t,x) => this.eventHandler(t,x), 'internal');
+    this.holderFns.get().identity = await this.holderFns.get().getIdentityFromPermissions();
+    return true;
+  }
+  methods() {
+    return LocalSocket.getMethods(this);
+  }
+  async eventHandler(event, payload) {
+    switch (event) {
+      case EVENTS.Disconnected:
+        this.holderFns.get().identity = null;
+        break;
+      case EVENTS.LoggedOut:
+        this.holderFns.get().identity = await this.holderFns.get().getIdentityFromPermissions();
+        break;
+    }
+  }
+}
