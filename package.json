@@ -10,11 +10,18 @@
 		"isomorphic-ws": "^4.0.1",
 		"ws": "^6.1.0"
 	},
+	"scripts": {
+		"build": "babel src -d lib"
+    },
 	"files": [
 		"dist"
 	],
 	"gitHead": "dadb46787c05b190765b3a112b85d9d26c451c08",
 	"publishConfig": {
 		"access": "public"
+	},
+	"devDependencies": {
+		"@babel/cli": "^7.19.3",
+		"@babel/core": "^7.20.5"
 	}
 }
