@@ -6,7 +6,7 @@ let device;
 	} else {
 		const {DeviceUUID} = await import('./device-uuid.js');
 
-		const du = new DeviceUUID().parse();
+		const du = DeviceUUID().parse();
 		const dua = [
 			du.language,
 			du.platform,
@@ -16,5 +16,7 @@ let device;
 		];
 		device = du.hashMD5(dua.join(':'));
 	}
-})
+	console.log(device)
+})();
+
 export default device;
