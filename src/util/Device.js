@@ -6,7 +6,7 @@ let device;
 	} else {
 		const {DeviceUUID} = await import('./device-uuid.js');
 
-		const du = DeviceUUID().parse();
+		const du = new DeviceUUID().parse();
 		const dua = [
 			du.language,
 			du.platform,
