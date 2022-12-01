@@ -1,10 +1,11 @@
 
 let device;
-import {DeviceUUID} from './device-uuid.js'
-
+(async ()=>{
 if(typeof navigator === 'undefined'){
 	device = 'nodejs_env'
 } else {
+
+	const {DeviceUUID} = await import('./device-uuid.js');
 
 	const du = new DeviceUUID().parse();
 	const dua = [
@@ -16,6 +17,5 @@ if(typeof navigator === 'undefined'){
 	];
 	device = du.hashMD5(dua.join(':'));
 }
-console.log(device)
-
+})
 export default device;

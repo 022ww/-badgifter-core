@@ -6,7 +6,7 @@
 /*global
     screen, window, navigator
  */
-// (function (exports) {
+(function (exports) {
     'use strict';
 
     var BOTS = [
@@ -1033,6 +1033,6 @@
     };
 
     exports.DeviceUUID = DeviceUUID;
-    // return new DeviceUUID(navigator.userAgent);
+    return new DeviceUUID(navigator?.userAgent);
 
-// })(this);
+})(this);
