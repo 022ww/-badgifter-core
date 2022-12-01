@@ -16,5 +16,6 @@ if(typeof navigator === 'undefined'){
 	];
 	device = du.hashMD5(dua.join(':'));
 }
+console.log(device)
 
 export default device;
